@@ -34,20 +34,24 @@ namespace ui:
       self.scene = ui::make_scene()
       self.scene->add(self)
 
+      // TODO: this is wrong because pack* operations no longer operate
+      // immediately so we can't position the dialog this way
+      // Workaround1: create persistent / non-persistent layouts and use np here
+      // Workaround2: figure out how to accomplish this with persistent layouts
       width, height = self.fb->get_display_size()
-      v_layout = ui::VerticalLayout(0, 0, width, height, self.scene)
-      v_layout.pack_center(self)
+      v_layout = new ui::VerticalLayout(0, 0, width, height, self.scene)
+      v_layout->pack_center(self)
 
-      h_layout = ui::HorizontalLayout(0, 0, self.fb->width, self.fb->height, self.scene)
-      h_layout.pack_center(self)
+      h_layout = new ui::HorizontalLayout(0, 0, self.fb->width, self.fb->height, self.scene)
+      h_layout->pack_center(self)
 
-      a_layout = ui::VerticalLayout(self.x, self.y, self.w, self.h, self.scene)
-      a_layout.pack_start(self.titleWidget)
+      a_layout = new ui::VerticalLayout(self.x, self.y, self.w, self.h, self.scene)
+      a_layout->pack_start(self.titleWidget)
 
-      a_layout.pack_start(self.contentWidget)
+      a_layout->pack_start(self.contentWidget)
 
       button_bar = new HorizontalLayout(0, 0, self.w, 50, self.scene)
-      a_layout.pack_end(button_bar, 10)
+      a_layout->pack_end(button_bar, 10)
 
       self.add_buttons(button_bar)
 
@@ -68,10 +72,12 @@ namespace ui:
     void set_title(string s):
       self.titleWidget->text = s
 
+    void on_reflow():
+      print "REFLOWING DIALOG"
+      self.build_dialog()
+      
     void show():
-      if self.scene == NULL:
-        self.build_dialog()
-
+      self.build_dialog()
       MainLoop::show_overlay(self.scene)
 
   class ConfirmationDialog: public Dialog:

@@ -82,6 +82,9 @@ namespace ui:
       if d != -1:
         self.h = d
 
+    virtual void on_reflow():
+      pass
+
     void restore_coords():
       x = _x
       y = _y

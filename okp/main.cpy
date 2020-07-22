@@ -140,6 +140,8 @@ class App:
     ui::MainLoop::handle_motion_event(syn_ev)
 
   def run():
+    ui::MainLoop::refresh()
+
     ui::MainLoop::main()
     self.fb->redraw_screen()
 

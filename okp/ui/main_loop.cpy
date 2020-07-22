@@ -61,11 +61,34 @@ namespace ui:
       scene->redraw()
       if overlay_is_visible:
         overlay->redraw()
+  
+    static void reflow(Scene s):
+      layouts = Layout::scene_to_layouts.find(s)
+      if layouts == Layout::scene_to_layouts.end():
+        return
+
+      print "REFLOWING SCENE", hex, s.get()
+      for auto w : s->widgets:
+        w->restore_coords()
+
+      for auto l : layouts->second:
+        l->restore_coords()
+
+      for auto l : layouts->second:
+        l->reflow()
+        for auto w : l->children:
+          w->on_reflow()
+
 
     static void refresh():
       scene->refresh()
       if overlay_is_visible:
         overlay->refresh()
+
+      reflow(scene)
+      if overlay_is_visible:
+        print "REFLOWING OVERLAY"
+        reflow(overlay)
 
     static void set_scene(Scene s):
       scene = s

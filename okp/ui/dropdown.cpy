@@ -66,6 +66,7 @@ namespace ui:
     vector<O> options
     vector<shared_ptr<DropdownSection<O>>> sections;
     ui::Scene scene = NULL
+    shared_ptr<VerticalLayout> layout
 
     DropdownButton(int x, y, w, h, vector<O> options, string name):\
                    options(options), ui::Button(x,y,w,h,name):
@@ -85,36 +86,39 @@ namespace ui:
       self.option_width = width
       self.option_height = height
 
+    void build_options():
+      width, height = self.fb->get_display_size()
+      ow = self.option_width
+      oh = self.option_height
+      self.options.clear()
+
+      self.scene = ui::make_scene()
+      // this doesn't work because x is adjusted during a reflow
+      // TODO: instead, we should do what?
+      print "SHOW OPTIONS", x, height
+      layout = make_shared<VerticalLayout>(x + self.option_x, self.option_y, ow, height, self.scene)
+
+      i = 0
+      for auto section: self.sections:
+        OptionSection *os
+        if section->name != "":
+          os = new OptionSection(0, 0, ow, oh, section->name)
+
+        opts = section->options
+
+        for auto option: opts:
+          option_btn = new OptionButton<DropdownButton>(0, 0, ow, oh, self, option->name, i)
+          if option->icon.data != NULL:
+            option_btn->icon = option->icon
+          layout->pack_end(option_btn)
+          self.options.push_back(*option)
+          i++
+
+        if section->name != "":
+          layout->pack_end(os)
+
     void show_options():
-      if self.scene == NULL:
-        width, height = self.fb->get_display_size()
-        ow = self.option_width
-        oh = self.option_height
-        self.options.clear()
-
-        self.scene = ui::make_scene()
-        layout = VerticalLayout(x + self.option_x, self.option_y, ow, height, self.scene)
-
-        i = 0
-        for auto section: self.sections:
-          OptionSection *os
-          if section->name != "":
-            os = new OptionSection(0, 0, ow, oh, section->name)
-
-          opts = section->options
-
-          for auto option: opts:
-            option_btn = new OptionButton<DropdownButton>(0, 0, ow, oh, self, option->name, i)
-            if option->icon.data != NULL:
-              option_btn->icon = option->icon
-            layout.pack_end(option_btn)
-            self.options.push_back(*option)
-            i++
-
-          if section->name != "":
-            layout.pack_end(os)
-
-
+      self.build_options()
       ui::MainLoop::show_overlay(self.scene)
 
     void select(int idx):
